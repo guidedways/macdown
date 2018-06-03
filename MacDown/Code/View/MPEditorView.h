@@ -11,6 +11,19 @@
 @interface MPEditorView : NSTextView
 
 @property BOOL scrollsPastEnd;
+
+/** If set, the insertion point will be placed on that line when file is open.
+ *
+ * @see openUrlSchemeAppleEvent
+ */
+@property (nonatomic, strong) NSNumber *insertionPointLineNumber;
+
+/** If set, the insertion point will be placed on that column when file is open.
+ *
+ * @see openUrlSchemeAppleEvent in MPMainController.
+ */
+@property (nonatomic, strong) NSNumber *insertionPointColumnNumber;
+
 - (NSRect)contentRect;
 
 @end
