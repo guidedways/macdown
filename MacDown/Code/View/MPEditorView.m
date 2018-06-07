@@ -7,6 +7,7 @@
 //
 
 #import "MPEditorView.h"
+#import "NSString+LineOffsets.h"
 
 
 NS_INLINE BOOL MPAreRectsEqual(NSRect r1, NSRect r2)
@@ -148,8 +149,13 @@ NS_INLINE BOOL MPAreRectsEqual(NSRect r1, NSRect r2)
  * inside an NSOperation to be invoked later since the layout manager will not
  * be invoked when the text is first set.
  *
+ * If insertionPointLineNumber and insertionPointColumnNumber are set,
+ * we place the insertion point to this location.
+ *
  * @see didChangeText
  * @see updateContentRect
+ * @see insertionPointLineNumber
+ * @see insertionPointColumnNumber
  */
 - (void)setString:(NSString *)string
 {
@@ -159,6 +165,18 @@ NS_INLINE BOOL MPAreRectsEqual(NSRect r1, NSRect r2)
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [self updateContentGeometry];
         }];
+    }
+    if (self.insertionPointLineNumber != nil &&
+        self.insertionPointColumnNumber != nil) {
+        // Place insertion point at given line and column.
+        NSUInteger lineNumber = [self.insertionPointLineNumber unsignedIntegerValue];
+        NSUInteger lineOffset = [[self string] getOffsetOfLineAtLineNumber:lineNumber];
+        NSUInteger columnOffset = [self.insertionPointColumnNumber unsignedIntegerValue] - 1;
+        NSUInteger offset = lineOffset + columnOffset;
+        [self setSelectedRange: NSMakeRange(offset, 0)];
+        [self displayIfNeeded];
+        self.insertionPointLineNumber = nil;
+        self.insertionPointColumnNumber = nil;
     }
 }
 
@@ -216,5 +234,6 @@ NS_INLINE BOOL MPAreRectsEqual(NSRect r1, NSRect r2)
 
     [self setFrameSize:self.frame.size];    // Force size update.
 }
+
 
 @end
